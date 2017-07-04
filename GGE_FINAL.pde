@@ -1,29 +1,20 @@
 import queasycam.*;
 
-
-
-float xOffset = 0;
-float yOffset = 0;
 int zFactor = 480;
 float zoomFactor = 0.004;
-float [][] pointBuffer;
 int stepSize = 20;
-float roughness = 1.0;
-float cameraAngle = 30.0;
 int RENDERWIDTH;
 int RENDERHEIGHT;
-float MINZ;
-float MAXZ;
 QueasyCam camera;
 
 void setup() {
   //fullScreen(P3D,2);
   size(800,600,P3D);
   frameRate(30);
-  RENDERWIDTH = width * 2;
-  RENDERHEIGHT = width * 2;
+  RENDERWIDTH = width * 5;
+  RENDERHEIGHT = width * 5;
   camera = new QueasyCam(this);
-  camera.position = new PVector(0f,-500f,0f);
+  camera.position = new PVector(RENDERWIDTH / 2.0,-500f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
   
@@ -31,43 +22,45 @@ void setup() {
 
 void draw() {
   perspective();
-  //print(camera.pan + "\n");
-  MAXZ = -99999999999.0;
-  MINZ = 99999999999.0;
-  pointBuffer = new float[RENDERWIDTH / stepSize + 1][RENDERHEIGHT / stepSize + 1];
-  for (int x = 0; x < RENDERWIDTH/stepSize + 1; x++) {
-    for (int y = 0; y < RENDERHEIGHT/stepSize; y++) {
-      float perlinNoise = noise((x*stepSize+xOffset) * zoomFactor,(y*stepSize+yOffset) * zoomFactor);
-      float z = pow(perlinNoise, roughness) * zFactor;
-      z = z - float(zFactor) / 2.0; // stay centered
-      MINZ = min(z, MINZ);
-      MAXZ = max(z, MAXZ);
-      pointBuffer[x][y] = z;
-    }
-  }
-  
-  
   pointLight(255, 255, 255, 0, -800, 0);
-          rotateX(-PI/2.0);
   background(0,0,255);    
-          
-      
-  for (int x = 0; x < (RENDERWIDTH/stepSize) - 1; x++) {
-    for (int y = 0; y < (RENDERHEIGHT/stepSize) - 1; y++) {
+  
+    
+  for (int x = 0; x < (RENDERWIDTH/stepSize); x++) {
+    for (int z = 0; z < (RENDERHEIGHT/stepSize); z++) {
       noStroke();
+      
+      
       float ULx = x*stepSize;
-      float ULy = y*stepSize;
-      float ULz = pointBuffer[x][y];
+      float ULz = z*stepSize;
+      float renderDistance = new PVector(ULx, 0, ULz).sub(camera.position).magSq(); 
+      
+      
+      //if (renderDistance > 1000000.0) {
+      //  break;
+      //}
+      
+      fill(255,0,0);
+      
+      if(renderDistance < 100000.0) {
+        fill(0,255,0);
+      } else {
+        fill(255,255,0);
+      } 
+      
+      
+           
+      float ULy = getNoise(ULx, ULz);
       float URx = (x+1)*stepSize;
-      float URy = y*stepSize;
-      float URz = pointBuffer[x+1][y];
+      float URz = z*stepSize;
+      float URy = getNoise(URx, URz);
       float LLx = x*stepSize;
-      float LLy = (y+1)*stepSize;
-      float LLz = pointBuffer[x][y+1];
+      float LLz = (z+1)*stepSize;
+      float LLy = getNoise(LLx, LLz);
       float LRx = (x+1)*stepSize;
-      float LRy = (y+1)*stepSize;
-      float LRz = pointBuffer[x+1][y+1];
-      float avgZ = (ULz + URz + LLz + LRz) / 4.0;
+      float LRz = (z+1)*stepSize;
+      float LRy = getNoise(LRx, LRz);
+      float avgY = (ULy + URy + LLy + LRy) / 4.0;
       PVector UL = new PVector(ULx, ULy, ULz);
       PVector UR = new PVector(URx, URy, URz);
       PVector LL = new PVector(LLx, LLy, LLz);
@@ -75,36 +68,44 @@ void draw() {
       
  
 
-      beginShape(QUADS);   
-      float valueRange = MAXZ - MINZ;
-      float value = avgZ - MINZ;
-      float ratio = value / valueRange;
-      if (ratio < 0.2) {
-         fill(255,255,255);
-      }
-      if (ratio > 0.2 && ratio < 0.4) {
-        fill(155,155,155);
-      }
-      if (ratio > 0.4 && ratio < 0.6) {
-        fill(186,232,197);
-      }
+         
       
-      if (ratio > 0.6) {
-        fill(65,140,190);
-      }
+      //float valueRange = MAXZ - MINZ;
+      //float value = avgZ - MINZ;
+      //float ratio = value / valueRange;
+      //if (ratio < 0.2) {
+      //   fill(255,255,255);
+      //}
+      //if (ratio > 0.2 && ratio < 0.4) {
+      //  fill(155,155,155);
+      //}
+      //if (ratio > 0.4 && ratio < 0.6) {
+      //  fill(186,232,197);
+      //}
+      
+      //if (ratio > 0.6) {
+      //  fill(65,140,190);
+      //}
                 
-      normal(0,0,1);
+      
+      
+      
+      beginShape(QUADS);
+      //normal(0,1,0);
       vertex(ULx, ULy, ULz);
       vertex(URx, URy, URz);
       vertex(LRx, LRy, LRz);
       vertex(LLx, LLy, LLz);
       endShape(CLOSE);
+      
+      
             
-      if(UL.copy().sub(camera.position).magSq() < 1000000.0) {
-        fill(0,255,0);
-        
-      }
+      
       
     }
   }
+}
+
+float getNoise(float x, float z) {
+  return noise(x * zoomFactor,z * zoomFactor) * zFactor;
 }
