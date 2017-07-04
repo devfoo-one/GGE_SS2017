@@ -23,12 +23,15 @@ void setup() {
   RENDERWIDTH = width * 2;
   RENDERHEIGHT = width * 2;
   camera = new QueasyCam(this);
-  
+  camera.position = new PVector(0f,-500f,0f);
+  camera.tilt = 0.5;
+  camera.pan = -0.75;
   
 }
 
 void draw() {
   perspective();
+  //print(camera.pan + "\n");
   MAXZ = -99999999999.0;
   MINZ = 99999999999.0;
   pointBuffer = new float[RENDERWIDTH / stepSize + 1][RENDERHEIGHT / stepSize + 1];
@@ -43,11 +46,12 @@ void draw() {
     }
   }
   
-  rotateX(-PI/2.0);
-  background(0,0,255);
-  pointLight(255, 255, 255, 0, 0, -800);
   
-    
+  pointLight(255, 255, 255, 0, -800, 0);
+          rotateX(-PI/2.0);
+  background(0,0,255);    
+          
+      
   for (int x = 0; x < (RENDERWIDTH/stepSize) - 1; x++) {
     for (int y = 0; y < (RENDERHEIGHT/stepSize) - 1; y++) {
       noStroke();
@@ -64,7 +68,13 @@ void draw() {
       float LRy = (y+1)*stepSize;
       float LRz = pointBuffer[x+1][y+1];
       float avgZ = (ULz + URz + LLz + LRz) / 4.0;
-     
+      PVector UL = new PVector(ULx, ULy, ULz);
+      PVector UR = new PVector(URx, URy, URz);
+      PVector LL = new PVector(LLx, LLy, LLz);
+      PVector LR = new PVector(LRx, LRy, LRz);
+      
+ 
+
       beginShape(QUADS);   
       float valueRange = MAXZ - MINZ;
       float value = avgZ - MINZ;
@@ -82,21 +92,19 @@ void draw() {
       if (ratio > 0.6) {
         fill(65,140,190);
       }
+                
       normal(0,0,1);
       vertex(ULx, ULy, ULz);
       vertex(URx, URy, URz);
       vertex(LRx, LRy, LRz);
       vertex(LLx, LLy, LLz);
       endShape(CLOSE);
+            
+      if(UL.copy().sub(camera.position).magSq() < 1000000.0) {
+        fill(0,255,0);
+        
+      }
+      
     }
   }
-}
-
-void keyPressed() {
-  if (key=='y' || key=='Y') {zoomFactor = max(zoomFactor - 0.0005, 0.0005); print("zoomFactor " + zoomFactor);}
-  if (key=='x' || key=='X') {zoomFactor += 0.0005; print("zoomFactor " + zoomFactor);}
-  if (key=='c' || key=='C') {roughness = max(roughness - 0.1,  0.1);}
-  if (key=='v' || key=='V') {roughness += 0.1;}
-  if (key=='n' || key=='N') {cameraAngle += 1.0;}
-  if (key=='m' || key=='M') {cameraAngle -= 1.0;}
 }
