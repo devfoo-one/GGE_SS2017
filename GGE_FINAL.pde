@@ -5,93 +5,108 @@ float zoomFactor = 0.004;
 int stepSize = 20;
 int RENDERWIDTH;
 int RENDERHEIGHT;
-QueasyCam camera;
+int lastMillis;
+FlightCam camera;
+
 
 void setup() {
   //fullScreen(P3D,2);
-  size(800,600,P3D);
+  size(1280,800,P3D);
   frameRate(30);
-  RENDERWIDTH = width * 5;
-  RENDERHEIGHT = width * 5;
-  camera = new QueasyCam(this);
+  RENDERWIDTH = width * 3;
+  RENDERHEIGHT = width * 3;
+  //camera = new QueasyCam(this);
+  camera = new FlightCam(this);
   camera.position = new PVector(RENDERWIDTH / 2.0,-500f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
-  
+  camera.speed = 0.01f;
 }
 
 void draw() {
-  perspective();
-  pointLight(255, 255, 255, 0, -800, 0);
-  background(0,0,255);    
   
+  // Get time since last draw call
+  int elapsedTime = millis() - lastMillis;
+  lastMillis = millis();
+   
+  perspective();
+  pointLight(255, 255, 255, 0, -2000, 0);
+  ambientLight(10, 10, 10);
+  background(0,0,255);    
+  noStroke();
+  camera.update(elapsedTime); 
+  
+   
+  //FLIGHT CONTROLLS
+  if (keyPressed == true) {
+   
+    if (keyCode == UP) {
+      camera.pullDown(elapsedTime);
+    }
+    if (keyCode == DOWN) {
+      camera.pullUp(elapsedTime);
+      
+    }
+    if (keyCode == LEFT) {
+      camera.pan-=0.01;
+    }
+    if (keyCode == RIGHT) {
+      camera.pan+=0.01;
+    }
     
-  for (int x = 0; x < (RENDERWIDTH/stepSize); x++) {
-    for (int z = 0; z < (RENDERHEIGHT/stepSize); z++) {
-      noStroke();
+    
+    
+  }
+    
+  
+  
+  int camX = int(camera.position.x);
+  int camZ = int(camera.position.z);
+  
+     
+  for (int x = camX - RENDERWIDTH / 2; x < camX + RENDERWIDTH / 2; x+=stepSize) {
+    for (int z = camZ - RENDERHEIGHT / 2; z < camZ + RENDERHEIGHT / 2; z+=stepSize) {
       
-      
-      float ULx = x*stepSize;
-      float ULz = z*stepSize;
+      float ULx = x;
+      float ULz = z;
       float renderDistance = new PVector(ULx, 0, ULz).sub(camera.position).magSq(); 
-      
-      
+           
       //if (renderDistance > 1000000.0) {
       //  break;
       //}
       
-      fill(255,0,0);
-      
-      if(renderDistance < 100000.0) {
-        fill(0,255,0);
+      if (renderDistance < 1000000) {
+        float lod = norm(renderDistance, 0, 1000000); 
+        fill(lerpColor(color(0,255,0), color(255,255,0), lod));
       } else {
-        fill(255,255,0);
-      } 
-      
-      
-           
+        float lod = norm(renderDistance, 1000000, 10000000); 
+        fill(lerpColor(color(255,255,0), color(255,0,0), lod));
+      }
+                 
+                 
       float ULy = getNoise(ULx, ULz);
-      float URx = (x+1)*stepSize;
-      float URz = z*stepSize;
+      float URx = x+stepSize;
+      float URz = z;
       float URy = getNoise(URx, URz);
-      float LLx = x*stepSize;
-      float LLz = (z+1)*stepSize;
+      float LLx = x;
+      float LLz = z+stepSize;
       float LLy = getNoise(LLx, LLz);
-      float LRx = (x+1)*stepSize;
-      float LRz = (z+1)*stepSize;
+      float LRx = x+stepSize;
+      float LRz = z+stepSize;
       float LRy = getNoise(LRx, LRz);
-      float avgY = (ULy + URy + LLy + LRy) / 4.0;
+      
       PVector UL = new PVector(ULx, ULy, ULz);
       PVector UR = new PVector(URx, URy, URz);
       PVector LL = new PVector(LLx, LLy, LLz);
       PVector LR = new PVector(LRx, LRy, LRz);
       
- 
-
-         
-      
-      //float valueRange = MAXZ - MINZ;
-      //float value = avgZ - MINZ;
-      //float ratio = value / valueRange;
-      //if (ratio < 0.2) {
-      //   fill(255,255,255);
-      //}
-      //if (ratio > 0.2 && ratio < 0.4) {
-      //  fill(155,155,155);
-      //}
-      //if (ratio > 0.4 && ratio < 0.6) {
-      //  fill(186,232,197);
-      //}
-      
-      //if (ratio > 0.6) {
-      //  fill(65,140,190);
-      //}
-                
-      
-      
       
       beginShape(QUADS);
-      //normal(0,1,0);
+      PVector edge1 = UL.copy().sub(LL);
+      PVector edge2 = LR.copy().sub(LL);
+      PVector normal = edge1.cross(edge2).normalize();
+      //normal(normal.x, normal.y, normal.z);
+      // ONE NORMAL PER VERTEX SHOULD WORK
       vertex(ULx, ULy, ULz);
       vertex(URx, URy, URz);
       vertex(LRx, LRy, LRz);
