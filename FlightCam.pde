@@ -12,10 +12,10 @@ class FlightCam extends QueasyCam {
   }
 
   public void pullUp(int elapsedTime) {
-    this.tilt-=0.0001 * elapsedTime;
+    this.tilt-=0.001 * elapsedTime;
   }
   
   public void pullDown(int elapsedTime) {
-    this.tilt+=0.0001 * elapsedTime;
+    this.tilt+=0.001 * elapsedTime;
   }
 }

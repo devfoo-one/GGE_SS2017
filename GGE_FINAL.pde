@@ -2,7 +2,7 @@ import queasycam.*;
 
 int zFactor = 480;
 float zoomFactor = 0.004;
-int stepSize = 20;
+int stepSize = 40;
 int RENDERWIDTH;
 int RENDERHEIGHT;
 int lastMillis;
@@ -13,14 +13,14 @@ void setup() {
   //fullScreen(P3D,2);
   size(1280,800,P3D);
   frameRate(30);
-  RENDERWIDTH = width * 3;
-  RENDERHEIGHT = width * 3;
+  RENDERWIDTH = width * 6;
+  RENDERHEIGHT = width * 6;
   camera = new FlightCam(this);
   //right handed coordinate system
-  camera.position = new PVector(RENDERWIDTH / 2.0,-100f,RENDERHEIGHT / 2.0);
+  camera.position = new PVector(RENDERWIDTH / 2.0,-500f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
-  camera.speed = 0.01f;
+  camera.speed = 0.5f;
 }
 
 void draw() {
@@ -48,10 +48,10 @@ void draw() {
       
     }
     if (keyCode == LEFT) {
-      camera.pan-=0.01;
+      camera.pan-=0.05;
     }
     if (keyCode == RIGHT) {
-      camera.pan+=0.01;
+      camera.pan+=0.05;
     }
     
     
@@ -62,10 +62,11 @@ void draw() {
   
   int camX = int(camera.position.x);
   int camZ = int(camera.position.z);
-  
-     
-  for (int x = camX - RENDERWIDTH / 2; x < camX + RENDERWIDTH / 2; x+=stepSize) {
-    for (int z = camZ - RENDERHEIGHT / 2; z < camZ + RENDERHEIGHT / 2; z+=stepSize) {
+    
+  for (int x_n = camX/stepSize - (RENDERWIDTH / 2 / stepSize); x_n < camX/stepSize + (RENDERWIDTH / 2 / stepSize); x_n++) {
+    for (int z_n = camZ/stepSize - (RENDERHEIGHT / 2 / stepSize); z_n < camZ/stepSize + (RENDERHEIGHT / 2 / stepSize); z_n++) {
+      int x = x_n * stepSize;
+      int z = z_n * stepSize;
       
       float ULx = x;
       float ULz = z;
