@@ -2,7 +2,7 @@ import queasycam.*;
 
 int zFactor = 480;
 float zoomFactor = 0.004;
-int stepSize = 40;
+int stepSize = 64;
 int RENDERWIDTH;
 int RENDERHEIGHT;
 int lastMillis;
