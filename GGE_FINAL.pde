@@ -15,9 +15,9 @@ void setup() {
   frameRate(30);
   RENDERWIDTH = width * 3;
   RENDERHEIGHT = width * 3;
-  //camera = new QueasyCam(this);
   camera = new FlightCam(this);
-  camera.position = new PVector(RENDERWIDTH / 2.0,-500f,RENDERHEIGHT / 2.0);
+  //right handed coordinate system
+  camera.position = new PVector(RENDERWIDTH / 2.0,-100f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
   camera.speed = 0.01f;
