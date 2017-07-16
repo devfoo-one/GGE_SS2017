@@ -107,14 +107,19 @@ void draw() {
           PVector LL = new PVector(LLx, LLy, LLz);
           PVector LR = new PVector(LRx, LRy, LRz);
           beginShape(QUADS);
-          //PVector edge1 = UL.copy().sub(LL);
-          //PVector edge2 = LR.copy().sub(LL);
-          //PVector normal = edge1.cross(edge2).normalize();
-          //normal(normal.x, normal.y, normal.z);
-          // ONE NORMAL PER VERTEX SHOULD WORK
+                   
+          PVector normalUL = UR.copy().sub(UL).cross(LL.copy().sub(UL)).normalize();
+          PVector normalUR = LR.copy().sub(UR).cross(UL.copy().sub(UR)).normalize();
+          PVector normalLL = UL.copy().sub(LL).cross(LR.copy().sub(LL)).normalize();
+          PVector normalLR = LL.copy().sub(LR).cross(UR.copy().sub(LR)).normalize();
+         
+          normal(normalUL.x, normalUL.y, normalUL.z);
           vertex(ULx, ULy, ULz);
+          normal(normalUR.x, normalUR.y, normalUR.z);
           vertex(URx, URy, URz);
+          normal(normalLR.x, normalLR.y, normalLR.z);
           vertex(LRx, LRy, LRz);
+          normal(normalLL.x, normalLL.y, normalLL.z);
           vertex(LLx, LLy, LLz);
           endShape(CLOSE);
        
