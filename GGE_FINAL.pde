@@ -31,7 +31,7 @@ void draw() {
    
   perspective();
   pointLight(255, 255, 255, 0, -2000, 0);
-  ambientLight(10, 10, 10);
+  ambientLight(40, 40, 40);
   background(0,0,255);    
   noStroke();
   camera.update(elapsedTime); 
@@ -76,7 +76,9 @@ void draw() {
       
       fill(color(0,255,0));
       
-      if (renderDistance < 500000) {
+     if (renderDistance < 300000) {
+        lodLevel = 5; 
+      } else if (renderDistance < 500000) {
         lodLevel = 4; 
       } else if (renderDistance < 1000000) {
         lodLevel = 3;
@@ -155,13 +157,18 @@ void draw() {
           PVector normalLR = LL.copy().sub(RLR).cross(UR.copy().sub(LLR)).normalize();
                         
           beginShape(QUADS);
+          
           normal(normalUL.x, normalUL.y, normalUL.z);
+          fill(getColorForY(UL.y));
           vertex(ULx, ULy, ULz);
           normal(normalUR.x, normalUR.y, normalUR.z);
+          fill(getColorForY(UR.y));
           vertex(URx, URy, URz);
           normal(normalLR.x, normalLR.y, normalLR.z);
+          fill(getColorForY(LR.y));
           vertex(LRx, LRy, LRz);
           normal(normalLL.x, normalLL.y, normalLL.z);
+          fill(getColorForY(LL.y));
           vertex(LLx, LLy, LLz);
           endShape(CLOSE);
        
@@ -173,5 +180,34 @@ void draw() {
 
 float getNoise(float x, float z) {
   //zoomFactor = noise(x/100, z/100);  
-  return noise(x * zoomFactor,z * zoomFactor) * zFactor;
+  return clampY(noise(x * zoomFactor,z * zoomFactor) * zFactor);
 }
+
+color getColorForY(float y) {
+  if (y > 259) {
+    return color(0,0,255); // water
+  } else if (y > 240) {
+    return color( 239, 221, 111); // sand
+  } else if (y > 120) {
+    return color( 22, 102, 35); // grass
+  } else if (y > 100) {
+    return color( 86, 82, 87); // gravel
+  } else if (y > 20) {
+    return color( 240, 245, 250); // snow
+  }
+  
+  return color(255,0,0);
+  
+  
+}
+
+float clampY(float y) {
+  if (y > 260) {
+    return 260;
+  }
+  return y;
+}
+
+
+  
+    
