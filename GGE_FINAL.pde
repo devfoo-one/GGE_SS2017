@@ -17,10 +17,10 @@ void setup() {
   RENDERHEIGHT = width * 6;
   camera = new FlightCam(this);
   //right handed coordinate system
-  camera.position = new PVector(RENDERWIDTH / 2.0,-500f,RENDERHEIGHT / 2.0);
+  camera.position = new PVector(RENDERWIDTH / 2.0,-100f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
-  camera.speed = 0.5f;
+  camera.speed = 0.05f;
 }
 
 void draw() {
@@ -72,23 +72,22 @@ void draw() {
       float ULz = z;
       int renderDistance = int(new PVector(ULx, 0, ULz).sub(camera.position).magSq()); 
       
-      int lod = 1;
-       
+      int lodLevel = 0;
+      
+      fill(color(0,255,0));
+      
       if (renderDistance < 500000) {
-        lod = 4;
-        fill(color(0,255,0));
-      } else if (renderDistance < 4000000) {
-        lod = 3;
-        fill(color(255,255,0));
+        lodLevel = 4; 
+      } else if (renderDistance < 1000000) {
+        lodLevel = 3;
+      } else if (renderDistance < 8000000) {
+        lodLevel = 2;
       } else if (renderDistance < 16000000) {
-        lod = 2;
-        fill(color(255,0,0));
-      } else {
-        fill(color(0,0,0));
+        lodLevel = 1;
       }
       
+      int lod = int(pow(2,lodLevel));
       int lodStep = stepSize/lod;
-      //print("Drawing stuff... lodStep: " + lodStep + "\n");
       for(int lod_x_i = 0; lod_x_i < lod; lod_x_i++) {
           for(int lod_z_i = 0; lod_z_i < lod; lod_z_i++) {
           ULx = x + lodStep * lod_x_i;
@@ -107,11 +106,6 @@ void draw() {
           PVector UR = new PVector(URx, URy, URz);
           PVector LL = new PVector(LLx, LLy, LLz);
           PVector LR = new PVector(LRx, LRy, LRz);
-          //print("UL: " + UL + "\n");
-          //print("UR: " + UR + "\n");
-          //print("LL: " + LL + "\n");
-          //print("LR: " + LR + "\n");
-          //print("----------\n"); 
           beginShape(QUADS);
           //PVector edge1 = UL.copy().sub(LL);
           //PVector edge2 = LR.copy().sub(LL);
@@ -125,8 +119,7 @@ void draw() {
           endShape(CLOSE);
        
         }
-      }
-      
+      }      
     }
   }
 }
