@@ -2,7 +2,7 @@ import queasycam.*;
 
 int zFactor = 480;
 float zoomFactor = 0.004;
-int stepSize = 128;
+int stepSize = 256;
 int RENDERWIDTH;
 int RENDERHEIGHT;
 int lastMillis;
@@ -106,13 +106,55 @@ void draw() {
           PVector UR = new PVector(URx, URy, URz);
           PVector LL = new PVector(LLx, LLy, LLz);
           PVector LR = new PVector(LRx, LRy, LRz);
+          
+          // extreme points for smooth normal calculation
+          
+          float LULx = ULx - lodStep;
+          float LULz = ULz;
+          float LULy = getNoise(LULx, LULz);
+          PVector LUL = new PVector(LULx, LULy,LULz);
+          
+          float LLLx = LULx;
+          float LLLz = LLz;
+          float LLLy = getNoise(LLLx, LLLz);
+          PVector LLL = new PVector(LLLx, LLLy,LLLz);
+          
+          float UULx = ULx;
+          float UULz = ULz - lodStep;
+          float UULy = getNoise(UULx, UULz);
+          PVector UUL = new PVector(UULx, UULy,UULz);
+          
+          float UURx = URx;
+          float UURz = UULz;
+          float UURy = getNoise(UURx, UURz);
+          PVector UUR = new PVector(UURx, UURy,UURz);
+                     
+          float RURx = URx + lodStep;
+          float RURz = URz;
+          float RURy = getNoise(RURx, RURz);
+          PVector RUR = new PVector(RURx, RURy,RURz);
+                        
+          float RLRx = LRx + lodStep;
+          float RLRz = LRz;
+          float RLRy = getNoise(RLRx, RLRz);
+          PVector RLR = new PVector(RLRx, RLRy,RLRz);
+                        
+          float LLRx = LRx;
+          float LLRz = LRz + lodStep;
+          float LLRy = getNoise(LLRx, LLRz);
+          PVector LLR = new PVector(LLRx, LLRy,LLRz);
+                        
+          float LLLLx = LLx;
+          float LLLLz = LLz + lodStep;
+          float LLLLy = getNoise(LLLLx, LLLLz);
+          PVector LLLL = new PVector(LLLLx, LLLLy,LLLLz);                       
+          
+          PVector normalUL = UR.copy().sub(LUL).cross(LL.copy().sub(UUL)).normalize();
+          PVector normalUR = LR.copy().sub(UUR).cross(UL.copy().sub(RUR)).normalize();
+          PVector normalLL = UL.copy().sub(LLLL).cross(LR.copy().sub(LLL)).normalize();
+          PVector normalLR = LL.copy().sub(RLR).cross(UR.copy().sub(LLR)).normalize();
+                        
           beginShape(QUADS);
-                   
-          PVector normalUL = UR.copy().sub(UL).cross(LL.copy().sub(UL)).normalize();
-          PVector normalUR = LR.copy().sub(UR).cross(UL.copy().sub(UR)).normalize();
-          PVector normalLL = UL.copy().sub(LL).cross(LR.copy().sub(LL)).normalize();
-          PVector normalLR = LL.copy().sub(LR).cross(UR.copy().sub(LR)).normalize();
-         
           normal(normalUL.x, normalUL.y, normalUL.z);
           vertex(ULx, ULy, ULz);
           normal(normalUR.x, normalUR.y, normalUR.z);
