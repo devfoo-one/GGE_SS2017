@@ -160,7 +160,7 @@ void draw() {
             PVector normalLL = UL.copy().sub(LLLL).cross(LR.copy().sub(LLL)).normalize();
             PVector normalLR = LL.copy().sub(RLR).cross(UR.copy().sub(LLR)).normalize();
                           
-            float darkness = renderDistance / 16000000.f;
+            float darkness = renderDistance / 30000000.f;
                           
             beginShape(QUADS);
             normal(normalUL.x, normalUL.y, normalUL.z);
@@ -186,6 +186,7 @@ void draw() {
 float getNoise(float x, float z) {
 
   float baseHeight = 2500 - noise(x*0.0001, z * 0.0001) * 5000;
+  zFactor = int(800 * noise(x*0.0001, z * 0.0001));
   return clampY(noise(x * zoomFactor,z * zoomFactor) * zFactor - baseHeight);
   
 }
@@ -195,9 +196,9 @@ color getColorForY(float y) {
     return color(0,0,255); // water
   } else if (y > 280) {
     return color( 239, 221, 111); // sand
-  } else if (y > 120) {
+  } else if (y > 100) {
     return color( 22, 102, 35); // grass
-  } else if (y > -100) {
+  } else if (y > -400) {
     return color( 86, 82, 87); // gravel
   } else {
     return color( 240, 245, 250); // snow
