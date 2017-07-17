@@ -1,6 +1,5 @@
 import queasycam.*;
 
-float zoomFactor = 0.002;
 int stepSize = 512;
 int RENDERWIDTH;
 int RENDERHEIGHT;
@@ -189,7 +188,7 @@ void draw() {
 float getNoise(float x, float z) {
   float baseHeight = 2500 - noise(x*0.0001, z * 0.0001) * 5000;
   float zFactor = 800 * noise(x*0.0002, z * 0.0002);
-  return clampY(noise(x * zoomFactor,z * zoomFactor) * zFactor - baseHeight);
+  return clampY(noise(x * 0.002,z * 0.002) * zFactor - baseHeight);
 }
 
 color getColorForY(float y) {
