@@ -11,6 +11,7 @@ FlightCam camera;
 
 void setup() {
   //fullScreen(P3D);
+  noiseSeed(4815);
   size(1280,800,P3D);
   frameRate(30);
   RENDERWIDTH = width * 8;
@@ -20,7 +21,7 @@ void setup() {
   camera.position = new PVector(RENDERWIDTH / 2.0,-100f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
-  camera.speed = 0.5f;
+  camera.speed = 0.0f;
   
 }
 
@@ -149,12 +150,37 @@ void draw() {
           float LLLLx = LLx;
           float LLLLz = LLz + lodStep;
           float LLLLy = getNoise(LLLLx, LLLLz);
-          PVector LLLL = new PVector(LLLLx, LLLLy,LLLLz);                       
+          PVector LLLL = new PVector(LLLLx, LLLLy,LLLLz);
           
-          PVector normalUL = UR.copy().sub(LUL).cross(LL.copy().sub(UUL)).normalize();
-          PVector normalUR = LR.copy().sub(UUR).cross(UL.copy().sub(RUR)).normalize();
-          PVector normalLL = UL.copy().sub(LLLL).cross(LR.copy().sub(LLL)).normalize();
-          PVector normalLR = LL.copy().sub(RLR).cross(UR.copy().sub(LLR)).normalize();
+          float Ax = LULx;
+          float Az = UULz;
+          float Ay = getNoise(Ax, Az);
+          PVector A = new PVector(Ax, Ay,Az);
+          
+          float Bx = RURx;
+          float Bz = URz;
+          float By = getNoise(Bx, Bz);
+          PVector B = new PVector(Bx, By,Bz);
+          
+          float Cx = LLLx;
+          float Cz = LLLLz;
+          float Cy = getNoise(Cx, Cz);
+          PVector C = new PVector(Cx, Cy,Cz);
+          
+          float Dx = RLRx;
+          float Dz = LLRz;
+          float Dy = getNoise(Dx, Dz);
+          PVector D = new PVector(Dx, Dy,Dz);
+          
+          PVector normalUL = LR.copy().sub(A).cross(LLL.copy().sub(UUR)).normalize();
+          PVector normalUR = LL.copy().sub(B).cross(UUL.copy().sub(RLR)).normalize();
+          PVector normalLL = UR.copy().sub(C).cross(LLR.copy().sub(LUL)).normalize();
+          PVector normalLR = LLLL.copy().sub(RUR).cross(UL.copy().sub(D)).normalize();
+          
+          //PVector normalUL = UR.copy().sub(LUL).cross(LL.copy().sub(UUL)).normalize();
+          //PVector normalUR = LR.copy().sub(UUR).cross(UL.copy().sub(RUR)).normalize();
+          //PVector normalLL = UL.copy().sub(LLLL).cross(LR.copy().sub(LLL)).normalize();
+          //PVector normalLR = LL.copy().sub(RLR).cross(UR.copy().sub(LLR)).normalize();
                         
           float darkness = renderDistance / 16000000.f;
                         
