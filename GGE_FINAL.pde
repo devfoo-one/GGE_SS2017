@@ -2,7 +2,7 @@ import queasycam.*;
 
 int zFactor = 480;
 float zoomFactor = 0.004;
-int stepSize = 256;
+int stepSize = 512;
 int RENDERWIDTH;
 int RENDERHEIGHT;
 int lastMillis;
@@ -13,14 +13,15 @@ void setup() {
   //fullScreen(P3D);
   size(1280,800,P3D);
   frameRate(30);
-  RENDERWIDTH = width * 6;
-  RENDERHEIGHT = width * 6;
+  RENDERWIDTH = width * 8;
+  RENDERHEIGHT = width * 8;
   camera = new FlightCam(this);
   //right handed coordinate system
   camera.position = new PVector(RENDERWIDTH / 2.0,-100f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
-  camera.speed = 0.05f;
+  camera.speed = 0.5f;
+  
 }
 
 void draw() {
@@ -31,7 +32,7 @@ void draw() {
    
   perspective();
   pointLight(255, 255, 255, 0, -2000, 0);
-  ambientLight(40, 40, 40);
+  ambientLight(100,100,100);
   background(0,0,255);    
   noStroke();
   camera.update(elapsedTime); 
@@ -54,8 +55,6 @@ void draw() {
       camera.pan+=0.05;
     }
     
-    
-    
   }
     
   
@@ -70,22 +69,23 @@ void draw() {
       
       float ULx = x;
       float ULz = z;
-      int renderDistance = int(new PVector(ULx, 0, ULz).sub(camera.position).magSq()); 
+      float ULy = getNoise(ULx, ULz);
+      int renderDistance = int(new PVector(ULx, ULy, ULz).sub(camera.position).magSq()); 
       
       int lodLevel = 0;
       
-      fill(color(0,255,0));
+      
       
      if (renderDistance < 300000) {
+        lodLevel = 6; 
+      } else if (renderDistance < 800000) {
         lodLevel = 5; 
-      } else if (renderDistance < 500000) {
-        lodLevel = 4; 
       } else if (renderDistance < 1000000) {
-        lodLevel = 3;
+        lodLevel = 4;
       } else if (renderDistance < 8000000) {
-        lodLevel = 2;
+        lodLevel = 3;
       } else if (renderDistance < 16000000) {
-        lodLevel = 1;
+        lodLevel = 2;
       }
       
       int lod = int(pow(2,lodLevel));
@@ -94,7 +94,7 @@ void draw() {
           for(int lod_z_i = 0; lod_z_i < lod; lod_z_i++) {
           ULx = x + lodStep * lod_x_i;
           ULz = z + lodStep * lod_z_i;
-          float ULy = getNoise(ULx, ULz);
+          ULy = getNoise(ULx, ULz);
           float URx = ULx + lodStep;
           float URz = ULz;
           float URy = getNoise(URx, URz);
@@ -156,19 +156,20 @@ void draw() {
           PVector normalLL = UL.copy().sub(LLLL).cross(LR.copy().sub(LLL)).normalize();
           PVector normalLR = LL.copy().sub(RLR).cross(UR.copy().sub(LLR)).normalize();
                         
+          float darkness = renderDistance / 16000000.f;
+                        
           beginShape(QUADS);
-          
           normal(normalUL.x, normalUL.y, normalUL.z);
-          fill(getColorForY(UL.y));
+          fill(lerpColor(getColorForY(UL.y), color(0), darkness));
           vertex(ULx, ULy, ULz);
           normal(normalUR.x, normalUR.y, normalUR.z);
-          fill(getColorForY(UR.y));
+          fill(lerpColor(getColorForY(UR.y), color(0), darkness));
           vertex(URx, URy, URz);
           normal(normalLR.x, normalLR.y, normalLR.z);
-          fill(getColorForY(LR.y));
+          fill(lerpColor(getColorForY(LR.y), color(0), darkness));
           vertex(LRx, LRy, LRz);
           normal(normalLL.x, normalLL.y, normalLL.z);
-          fill(getColorForY(LL.y));
+          fill(lerpColor(getColorForY(LL.y), color(0), darkness));
           vertex(LLx, LLy, LLz);
           endShape(CLOSE);
        
@@ -179,8 +180,12 @@ void draw() {
 }
 
 float getNoise(float x, float z) {
-  //zoomFactor = noise(x/100, z/100);  
+  
+  //zFactor = int(400 * (noise(x/10000, z/10000)));
+  //zoomFactor = 0.004 * ((float(zFactor))/400f);
+  //float zFactor = 2 * noise(x/1000, z/1000);
   return clampY(noise(x * zoomFactor,z * zoomFactor) * zFactor);
+  
 }
 
 color getColorForY(float y) {
@@ -192,11 +197,11 @@ color getColorForY(float y) {
     return color( 22, 102, 35); // grass
   } else if (y > 100) {
     return color( 86, 82, 87); // gravel
-  } else if (y > 20) {
+  } else {
     return color( 240, 245, 250); // snow
   }
   
-  return color(255,0,0);
+  //return color(255,0,0);
   
   
 }
@@ -208,6 +213,10 @@ float clampY(float y) {
   return y;
 }
 
-
+void keyPressed() {
+ if (key=='n') {this.zoomFactor-=0.0001; print(zoomFactor + "\n");}
+ if (key=='m') {this.zoomFactor+=0.0001; print(zoomFactor + "\n");}
+   
+}
   
     

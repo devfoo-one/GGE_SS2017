@@ -7,8 +7,14 @@ class FlightCam extends QueasyCam {
   }
 
   public void update(int elapsedTime) {
-     camera.position = camera.position.add(PVector.mult(camera.getForward(), float(elapsedTime) * speed));
-  
+    
+    this.tilt-=0.1;
+    PVector forward = camera.getForward(); 
+    camera.position = camera.position.add(PVector.mult(forward, float(elapsedTime) * speed));
+    if (camera.position.y > 260) {
+      camera.position.y = 259;    
+    }
+    //this.tilt+=1;
   }
 
   public void pullUp(int elapsedTime) {
