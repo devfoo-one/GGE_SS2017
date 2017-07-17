@@ -14,14 +14,14 @@ void setup() {
   size(1280,800,P3D);
   frameRate(30);
   noiseDetail(5);
-  RENDERWIDTH = width * 8;
-  RENDERHEIGHT = width * 8;
+  RENDERWIDTH = width * 16;
+  RENDERHEIGHT = width * 16;
   camera = new FlightCam(this);
   //right handed coordinate system
   camera.position = new PVector(RENDERWIDTH / 2.0,-100f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
-  camera.speed = 0.8f;
+  camera.speed = 0.1f;
   
 }
 
@@ -160,7 +160,7 @@ void draw() {
             PVector normalLL = UL.copy().sub(LLLL).cross(LR.copy().sub(LLL)).normalize();
             PVector normalLR = LL.copy().sub(RLR).cross(UR.copy().sub(LLR)).normalize();
                           
-            float darkness = renderDistance / 30000000.f;
+            float darkness = renderDistance / 64000000.f;
                           
             beginShape(QUADS);
             normal(normalUL.x, normalUL.y, normalUL.z);
