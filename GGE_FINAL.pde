@@ -15,7 +15,7 @@ void setup() {
   RENDERWIDTH = width * 16;
   RENDERHEIGHT = width * 16;
   camera = new FlightCam(this);
-  //right handed coordinate system
+  //left handed coordinate system
   camera.position = new PVector(RENDERWIDTH / 2.0,-3000f,RENDERHEIGHT / 2.0);
   camera.tilt = 0.5;
   camera.pan = -0.75;
